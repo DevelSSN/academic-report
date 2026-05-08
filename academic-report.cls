@@ -33,6 +33,8 @@
 
 % --- Global Settings ---
 \RequirePackage{csquotes}                   % Context-sensitive quotes
+\RequirePackage{mfirstuc}                 % Title case support
+\RequirePackage{textcase}                 % Robust case conversion
 \onehalfspacing
 \hypersetup{
     colorlinks=true,
@@ -57,6 +59,9 @@
 \newcommand{\groupnumber}[1]{\def\@groupnumber{#1}}
 \newcommand{\universitylogo}[1]{\def\@universitylogo{#1}}
 \newcommand{\institutelogo}[1]{\def\@institutelogo{#1}}
+\newcommand{\hod}[1]{\def\@hod{#1}}
+\newcommand{\principal}[1]{\def\@principal{#1}}
+\newcommand{\institutionDesc}[1]{\def\@institutionDesc{#1}}
 
 % Student handling
 \newcounter{studentcount}
@@ -69,13 +74,11 @@
     \gappto\studentlist{#1 | #2 | }%
     % Append to comma format: "Name (USN)"
     \ifnum\value{studentcount}=1
-        \gdef\studentcommalist{#1 (#2)}%
+        \gdef\studentcommalist{\capitalisewords{#1} (\MakeUppercase{#2})}%
     \else
-        \xdef\studentcommalist{\studentcommalist, #1 (#2)}%
+        \xdef\studentcommalist{\studentcommalist, \capitalisewords{#1} (\MakeUppercase{#2})}%
     \fi
 }
-
-% --- Formatting ---
 
 % --- Formatting ---
 \titleformat{\chapter}[hang]{\bfseries\centering\LARGE}{Chapter \thechapter}{1em}{}
@@ -94,64 +97,75 @@
 % Patch chapter pages to use fancy style
 \patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
 
-% --- Front Matter Templates ---
-
+% --- Helpers ---
 \newcommand{\titlerow}[1]{\expandafter\@titlerow#1\@nil}
 \def\@titlerow#1 | #2 | #3\@nil{%
-    {\large #1 (#2)}\par \vspace{0.2cm}
+    {\large \MakeUppercase{#1} (\MakeUppercase{#2})}\par \vspace{0.2cm}
     \ifx\relax#3\relax\else\@titlerow#3\@nil\fi
 }
+
+\newcommand{\splitstudentrow}[1]{\expandafter\@splitstudentrow#1\@nil}
+\def\@splitstudentrow#1 | #2 | #3\@nil{%
+    \global\advance\rowcount by 1
+    \the\rowcount & \capitalisewords{#1} & \MakeUppercase{#2} & \\[1ex] \hline
+    \ifx\relax#3\relax\else\expandafter\@splitstudentrow#3\@nil\fi
+}
+
+% --- Front Matter Templates ---
 
 % 1. Title Page
 \newcommand{\maketitlepage}{
     \begin{titlepage}
         \centering
-        {\Huge \textbf{\@projecttitle}}\\[1.0cm]
+        \begin{onehalfspace}
+            {\Huge \textbf{\@projecttitle}}\par
+        \end{onehalfspace}
+        \vfill
         \ifdef{\@universitylogo}{
-            \includegraphics[width=0.18\linewidth]{\@universitylogo}\\[0.9cm]
+            \includegraphics[width=0.18\linewidth]{\@universitylogo}\par\vfill
         }{
-            \vspace{2cm}
+            \vfill
         }
         {\Large \textbf{\@projecttype}}\\[0.2cm]
         {\large \textit{Submitted by}}\\[0.2cm]
         \ifdef{\@groupnumber}{{\large Group Number: \@groupnumber}\par \vspace{0.1cm}}{}
         
-        \expandafter\titlerow\expandafter{\studentlist}\par \vspace{0.5cm}
+        \expandafter\titlerow\expandafter{\studentlist}\par \vfill
 
         {\itshape in partial fulfillment for the award of the degree of}\\[0.15cm]
-        {\Large \textbf{\@degree}}\\[0.2cm]
+        {\Large \textbf{\MakeUppercase{\@degree}}}\\[0.2cm]
         {\large in}\\[0.2cm]
-        {\Large \textbf{\@branch}}\\[0.2cm]
+        {\Large \textbf{\MakeUppercase{\@branch}}}\\[0.2cm]
+        \vfill
         {\large Under the Guidance of}\\
-        {\large \textbf{\@guidename}}\\
+        {\large \textbf{\MakeUppercase{\@guidename}}}\\
         {\large \@guidedesignation \\ \@department \\ \@institution}
         \vfill
         \ifdef{\@institutelogo}{
-            \includegraphics[width=0.18\linewidth]{\@institutelogo}\\[0.5cm]
+            \includegraphics[width=0.18\linewidth]{\@institutelogo}\\[0.3cm]
         }{}
-        {\Large \textbf{\@institution}}\\
-        {\large (\@university)}\\
+        {\Large \textbf{\MakeUppercase{\@institution}}}\\
+        {\large (\@institutionDesc)}\\
         {\large \@location}\\
         {\large Academic Year - \@academicyear}
     \end{titlepage}
 }
 
 % 2. Certificate
-\newcommand{\makecertificate}[2]{
+\newcommand{\makecertificate}{
     \chapter*{Certificate}
     \thispagestyle{empty}
-    \vspace{1cm}
     \begin{center}
         \includegraphics[width=0.15\linewidth]{\@institutelogo}
     \end{center}
     \vspace{0.5cm}
-    This is to certify that the project report entitled \textbf{\enquote{\@projecttitle}} is a bonafide work carried out by \textbf{\studentcommalist} in partial fulfillment of the requirements for the award of the degree of \textbf{\@degree} in \textbf{\@branch}, under my supervision during the academic year \@academicyear.
+    This is to certify that the project report entitled \textbf{\enquote{\@projecttitle}} is a bonafide work carried out by \textbf{\studentcommalist} in partial fulfillment of the requirements for the award of the degree of \textbf{\capitalisewords{\@degree}} in \textbf{\capitalisewords{\@branch}}, under my supervision during the academic year \@academicyear.
     
     \vspace{2cm}
     \noindent
     \begin{tabular}{@{}p{0.33\textwidth} p{0.33\textwidth} p{0.33\textwidth}@{}}
-        Guide Signature & HoD Signature & Principal Signature \\[0.5cm]
-        (\@guidename) & (#1) & (#2)
+        Guide Signature & \centering HoD Signature & \raggedleft Principal Signature \tabularnewline[0.5cm]
+        (\@guidename) & \centering \@hod & \raggedleft \@principal
     \end{tabular}
 
     \vspace{2cm}
@@ -162,22 +176,13 @@
     Examiner 1:  \\[1cm]
     Examiner 2: 
     \clearpage 
-
-
-}
-
-\newcommand{\splitstudent}[1]{\expandafter\@splitstudent#1\@nil}
-\def\@splitstudent#1 | #2 | #3\@nil{%
-    \global\advance\rowcount by 1
-    \the\rowcount & #1 & #2 & \\[1ex] \hline
-    \ifx\relax#3\relax\else\@splitstudent#3\@nil\fi
 }
 
 % 3. Declaration
 \newcommand{\makedeclaration}{
     \chapter*{DECLARATION}
     \thispagestyle{empty}
-    We, hereby declare that the \@projecttype\ work entitled \enquote{\@projecttitle} is a bonafide work and has been carried out by us under the guidance of \@guidename, \@guidedesignation, \@department, \@institution, in partial fulfillment of the requirements of the degree of \@degree\ in \@branch\ of \@university. 
+    We, hereby declare that the \capitalisewords{\@projecttype}\ work entitled \enquote{\@projecttitle} is a bonafide work and has been carried out by us under the guidance of \capitalisewords{\@guidename}, \capitalisewords{\@guidedesignation}, \capitalisewords{\@department}, \capitalisewords{\@institution}, in partial fulfillment of the requirements of the degree of \capitalisewords{\@degree}\ in \capitalisewords{\@branch}\ of \capitalisewords{\@university}. 
     
     I further declare that, to the best of my knowledge and belief, this project has not been submitted either in part or in full to any other university for the award of any degree. 
     
@@ -193,17 +198,17 @@
     \hline
     \global\newcount\rowcount
     \rowcount=0
-    \expandafter\splitstudent\expandafter{\studentlist}
+    \expandafter\splitstudentrow\expandafter{\studentlist}
     \end{tabular}
     \end{center}
     \begin{flushleft}
     Place: \@location \\
     Date: \\
     \end{flushleft}
-    Certified that these candidates are students of \@department\ of \@institution. They have carried out the project work of titled \enquote{\@projecttitle} as \@projecttype\ work. It is in partial fulfillment for completing the requirement for the award of \@degree\ degree by \@university. The works is original and duly certify the same.  
+    Certified that these candidates are students of \capitalisewords{\@department}\ of \capitalisewords{\@institution}. They have carried out the project work of titled \enquote{\@projecttitle} as \capitalisewords{\@projecttype}. It is in partial fulfillment for completing the requirement for the award of \capitalisewords{\@degree}\ degree by \capitalisewords{\@university}. The work is original and I duly certify the same.  
     \vspace{1cm}
     \begin{flushleft}
-    Guide Name: \@guidename \\
+    Guide Name: \capitalisewords{\@guidename} \\
     Date: \\
     Signature \\ 
     \end{flushleft}
@@ -245,4 +250,5 @@
 
     \section{Appendix F: Similarity report, AI Generated report}
     \vfill \centering \textit{[Insert Reports Here]} \vfill
+    \clearpage
 }
