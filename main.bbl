@@ -1,0 +1,87 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global/global}
+  \entry{sample_article}{article}{}{}
+    \name{author}{2}{}{%
+      {{hash=DJ}{%
+         family={Doe},
+         familyi={D\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Smith},
+         familyi={S\bibinitperiod},
+         given={Jane},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DJSJ1}
+    \strng{fullhash}{DJSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{2}
+    \field{pages}{123\bibrangedash 145}
+    \field{title}{A Study on Automated LaTeX Templates}
+    \field{volume}{10}
+    \field{journaltitle}{Journal of Academic Reports}
+    \field{year}{2024}
+  \endentry
+
+  \entry{sample_book}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=MR}{%
+         family={Martin},
+         familyi={M\bibinitperiod},
+         given={Robert},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Prentice Hall}%
+    }
+    \strng{namehash}{MR1}
+    \strng{fullhash}{MR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Clean Code: A Handbook of Agile Software Craftsmanship}
+    \field{year}{2008}
+  \endentry
+
+  \entry{sample_online}{online}{}{}
+    \name{author}{1}{}{%
+      {{hash=PL}{%
+         family={Project},
+         familyi={P\bibinitperiod},
+         given={LaTeX},
+         giveni={L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PL1}
+    \strng{fullhash}{PL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{BibLaTeX Documentation}
+    \verb{url}
+    \verb https://www.overleaf.com/learn/latex/Biblatex_citation_styles
+    \endverb
+    \field{year}{2024}
+  \endentry
+\enddatalist
+\endinput

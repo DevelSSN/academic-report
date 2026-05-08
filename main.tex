@@ -1,0 +1,83 @@
+\documentclass{academic-report}
+
+% ==========================================
+%            PROJECT METADATA
+% ==========================================
+\projecttitle{AI GUARDED CODE EDITOR: Verifying Authentic Human Input}
+\projecttype{PROJECT REPORT}
+\institution{B.M.S. COLLEGE OF ENGINEERING}
+\department{Department of Computer Science and Engineering}
+\university{Autonomous Institution under VTU}
+\location{BENGALURU - 560019}
+\academicyear{2025--2026}
+\guidename{Dr. K. PANIMOZHI}
+\guidedesignation{Associate Professor}
+\degree{BACHELOR OF ENGINEERING}
+\branch{COMPUTER SCIENCE AND ENGINEERING}
+\groupnumber{1}
+
+% Logos (Place images in project root)
+\universitylogo{VTU-Logojpg.jpg}
+\institutelogo{bmscelogo.jpg}
+
+% Students (add up to 4)
+\addstudent{Student Name 1}{USN1}
+\addstudent{Student Name 2}{USN2}
+\addstudent{Student Name 3}{USN3}
+\addstudent{Student Name 4}{USN4}
+
+% Custom Header/Footer info
+\runningtitle{AI Guarded Code Editor}
+\footerleft{Dept. of CSE, BMSCE}
+% ==========================================
+
+\begin{document}
+
+% ---------- FRONT MATTER ----------
+\pagenumbering{roman}
+
+\maketitlepage
+
+% Certificate (Arguments: HoD Name, Principal Name)
+\makecertificate{Dr. Kavitha Sooda}{Dr. Bheemsha Arya}
+
+% Abstract
+\chapter*{Abstract}
+\thispagestyle{empty}
+Write your abstract here. This should summarize the entire project including objectives, methods, and outcomes. It should be complete one full page.
+\clearpage
+
+% Declaration
+\makedeclaration
+
+\chapter*{Acknowledgment}
+\thispagestyle{empty}
+We thank all those all the thank all those helped you in this project: guide, faculty, friends, and family.
+\clearpage
+
+% TOC, LoF, LoT
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\clearpage
+
+% ---------- MAIN MATTER ----------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\include{chapters/introduction}
+\include{chapters/literature_survey}
+\include{chapters/requirements}
+\include{chapters/design}
+\include{chapters/implementation}
+\include{chapters/results}
+\include{chapters/conclusion}
+
+% ---------- BACK MATTER ----------
+\clearpage
+\printbibliography[heading=bibintoc, title={References}]
+\makeappendices
+
+\end{document}
