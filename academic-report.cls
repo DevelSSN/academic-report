@@ -32,6 +32,7 @@
 \addbibresource{references.bib}
 
 % --- Global Settings ---
+\RequirePackage{tabularx}                   % Precise table widths
 \RequirePackage{csquotes}                   % Context-sensitive quotes
 \RequirePackage{mfirstuc}                 % Title case support
 \RequirePackage{textcase}                 % Robust case conversion
@@ -115,6 +116,7 @@
 
 % 1. Title Page
 \newcommand{\maketitlepage}{
+    \newgeometry{left=1.5in, right=1in, top=0.75in, bottom=0.75in}
     \begin{titlepage}
         \centering
         \begin{onehalfspace}
@@ -149,6 +151,7 @@
         {\large \@location}\\
         {\large Academic Year - \@academicyear}
     \end{titlepage}
+    \restoregeometry
 }
 
 % 2. Certificate
@@ -163,10 +166,10 @@
     
     \vspace{2cm}
     \noindent
-    \begin{tabular}{@{}p{0.33\textwidth} p{0.33\textwidth} p{0.33\textwidth}@{}}
-        Guide Signature & \centering HoD Signature & \raggedleft Principal Signature \tabularnewline[0.5cm]
-        (\@guidename) & \centering \@hod & \raggedleft \@principal
-    \end{tabular}
+    \begin{tabularx}{\textwidth}{@{}X >{\centering\arraybackslash}X >{\raggedleft\arraybackslash}X@{}}
+        Guide Signature & HoD Signature & Principal Signature \tabularnewline[0.5cm]
+        (\@guidename) & \@hod & \@principal
+    \end{tabularx}
 
     \vspace{2cm}
     \noindent
