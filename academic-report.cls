@@ -10,9 +10,15 @@
 \ifpdftex
     \RequirePackage[T1]{fontenc}
     \RequirePackage[utf8]{inputenc}
-    \RequirePackage{mathptmx}              % Standard Times New Roman for pdflatex
+    \RequirePackage{times}                 % Standard Times for pdflatex
 \else
-    \RequirePackage{times}                 % Use system-agnostic 'times' package for LuaLaTeX
+    \RequirePackage{fontspec}              % Better font handling for LuaLaTeX
+    \setmainfont{texgyretermes-regular.otf}[
+        BoldFont = texgyretermes-bold.otf,
+        ItalicFont = texgyretermes-italic.otf,
+        BoldItalicFont = texgyretermes-bolditalic.otf
+    ]
+    \setmonofont{lmmono12-regular.otf}
 \fi
 
 \RequirePackage{setspace}                 % Line spacing
@@ -22,18 +28,24 @@
 \RequirePackage{graphicx}                 % Figures
 \RequirePackage{hyperref}                 % Hyperlinks
 \RequirePackage{tocloft}                  % TOC formatting
-\RequirePackage{etoolbox}                 % Patching
+\RequirePackage{etoolbox}                 % Patching and list handling
+\RequirePackage{tabularx}                 % Precise table widths
 \RequirePackage{xcolor}                   % Colors
 \RequirePackage{enumitem}                 % Standardized lists
 \RequirePackage[title,titletoc]{appendix} % Standardized appendices
 
 % --- Bibliography ---
-\RequirePackage[style=ieee,backend=bibtex]{biblatex}
+\RequirePackage[style=ieee,backend=biber,urldate=iso,date=iso,seconds=true]{biblatex}
 \addbibresource{references.bib}
 
+% URL breaking improvements
+\RequirePackage{url}
+\g@addto@macro{\UrlBreaks}{\do\/\do\-\do\.\do\_}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+
 % --- Global Settings ---
-\RequirePackage{tabularx}                   % Precise table widths
-\RequirePackage{csquotes}                   % Context-sensitive quotes
+\RequirePackage{csquotes}                 % Context-sensitive quotes
 \RequirePackage{mfirstuc}                 % Title case support
 \RequirePackage{textcase}                 % Robust case conversion
 \onehalfspacing
@@ -46,6 +58,23 @@
 }
 
 % --- Metadata Variables ---
+\def\@projecttitle{Project Title}
+\def\@projecttype{Project Report}
+\def\@institution{Institution Name}
+\def\@department{Department Name}
+\def\@university{University Name}
+\def\@location{Location}
+\def\@academicyear{20XX-XX}
+\def\@guidename{Guide Name}
+\def\@guidedesignation{Assistant Professor}
+\def\@degree{Bachelor of Engineering}
+\def\@branch{Your Branch}
+\def\@hod{Head of Department}
+\def\@principal{Principal Name}
+\def\@institutionDesc{Autonomous Institution}
+\def\@runningtitle{}
+\def\@footerleft{}
+
 \newcommand{\projecttitle}[1]{\def\@projecttitle{#1}}
 \newcommand{\projecttype}[1]{\def\@projecttype{#1}}
 \newcommand{\institution}[1]{\def\@institution{#1}}
@@ -66,14 +95,12 @@
 
 % Student handling
 \newcounter{studentcount}
-\newcommand{\studentlist}{}      % For Declaration Table
-\newcommand{\studentcommalist}{} % For Certificate (Comma-separated)
+\newcommand{\studentlist}{}      
+\newcommand{\studentcommalist}{} 
 
 \newcommand{\addstudent}[2]{%
     \stepcounter{studentcount}%
-    % Append to list: "Name | USN | " for parsing
-    \gappto\studentlist{#1 | #2 | }%
-    % Append to comma format: "Name (USN)"
+    \listgadd{\studentlist}{{#1}{#2}}% Store as pairs in etoolbox list
     \ifnum\value{studentcount}=1
         \gdef\studentcommalist{\capitalisewords{#1} (\MakeUppercase{#2})}%
     \else
@@ -92,24 +119,27 @@
 \lfoot{\textit{\@footerleft}}
 \rfoot{\textit{Page \thepage}}
 
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \lhead{\textit{\@runningtitle}}
+    \lfoot{\textit{\@footerleft}}
+    \rfoot{\textit{Page \thepage}}
+}
+
 \newcommand{\runningtitle}[1]{\def\@runningtitle{#1}}
 \newcommand{\footerleft}[1]{\def\@footerleft{#1}}
 
-% Patch chapter pages to use fancy style
-\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
-
 % --- Helpers ---
-\newcommand{\titlerow}[1]{\expandafter\@titlerow#1\@nil}
-\def\@titlerow#1 | #2 | #3\@nil{%
-    {\large \MakeUppercase{#1} (\MakeUppercase{#2})}\par \vspace{0.2cm}
-    \ifx\relax#3\relax\else\@titlerow#3\@nil\fi
+\newcommand{\renderstudenttitle}[1]{\@renderstudenttitle#1}
+\def\@renderstudenttitle#1#2{%
+    {\large \MakeUppercase{#1} (\MakeUppercase{#2})}\par \vspace{0.2cm}%
 }
 
-\newcommand{\splitstudentrow}[1]{\expandafter\@splitstudentrow#1\@nil}
-\def\@splitstudentrow#1 | #2 | #3\@nil{%
-    \global\advance\rowcount by 1
-    \the\rowcount & \capitalisewords{#1} & \MakeUppercase{#2} & \\[1ex] \hline
-    \ifx\relax#3\relax\else\expandafter\@splitstudentrow#3\@nil\fi
+\newcounter{rowidx}
+\newcommand{\renderstudentrow}[1]{\@renderstudentrow#1}
+\def\@renderstudentrow#1#2{%
+    \stepcounter{rowidx}%
+    \the\value{rowidx} & \capitalisewords{#1} & \MakeUppercase{#2} & \\[1ex] \hline
 }
 
 % --- Front Matter Templates ---
@@ -118,6 +148,7 @@
 \newcommand{\maketitlepage}{
     \newgeometry{left=1.5in, right=1in, top=0.75in, bottom=0.75in}
     \begin{titlepage}
+        \pagenumbering{Alph} % Use letters for front pages to avoid hyperref conflicts
         \centering
         \begin{onehalfspace}
             {\Huge \textbf{\@projecttitle}}\par
@@ -132,7 +163,7 @@
         {\large \textit{Submitted by}}\\[0.2cm]
         \ifdef{\@groupnumber}{{\large Group Number: \@groupnumber}\par \vspace{0.1cm}}{}
         
-        \expandafter\titlerow\expandafter{\studentlist}\par \vfill
+        \forlistloop{\renderstudenttitle}{\studentlist}\par \vfill
 
         {\itshape in partial fulfillment for the award of the degree of}\\[0.15cm]
         {\Large \textbf{\MakeUppercase{\@degree}}}\\[0.2cm]
@@ -156,8 +187,11 @@
 
 % 2. Certificate
 \newcommand{\makecertificate}{
+    \clearpage
     \chapter*{Certificate}
     \thispagestyle{empty}
+    \pagenumbering{roman}
+    \setcounter{page}{2}
     \begin{center}
         \includegraphics[width=0.15\linewidth]{\@institutelogo}
     \end{center}
@@ -199,9 +233,8 @@
     \hline
     \textbf{SL. NO.} & \textbf{Student Name} & \textbf{USN} & \textbf{Student’s Signature} \\
     \hline
-    \global\newcount\rowcount
-    \rowcount=0
-    \expandafter\splitstudentrow\expandafter{\studentlist}
+    \setcounter{rowidx}{0}
+    \forlistloop{\renderstudentrow}{\studentlist}
     \end{tabular}
     \end{center}
     \begin{flushleft}
