@@ -78,4 +78,4 @@ Open `main.tex` and update the following commands:
 - **Duplicate Page Identifiers**: The template uses `Alph` and `roman` numbering for front matter to prevent `hyperref` conflicts with Chapter 1. Do not change the `\pagenumbering` manually unless necessary.
 
 ## License
-MIT License - Feel free to use and modify for your academic needs.
+3-clause BSD modified to include documentation. Refer LICENSE for more information
